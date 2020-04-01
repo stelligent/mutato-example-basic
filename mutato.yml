@@ -1,0 +1,20 @@
+# deploy into two separate environments in our AWS account
+environments:
+  - acceptance
+  - production
+
+# build our custom Dockerfile
+containers:
+  - docker:
+      name: web-server
+      file: Dockerfile
+
+resources:
+  # create a load balanced Fargate service from our Dockerfile
+  - service:
+      provider: fargate
+      container: web-server
+  # use 1 AZ in acceptance environment to reduce costs
+  - network:
+      vpc:
+        maxAZs: {{ 1 if environment == "acceptance" else 3 }}
